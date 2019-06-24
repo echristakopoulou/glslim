@@ -1,0 +1,19 @@
+2006-06-22  Michael P. Friedlander  <mpf@cs.ubc.ca>
+
+	* CGLS now implemented as an alternative to LSQR.
+	Still need to refine subprob convergence test.
+
+2006-06-20  Michael P. Friedlander  <mpf@cs.ubc.ca>
+
+	* Changed convergence tests.  Major iteration test now normalized
+	by norm of A'b.  The inner tolerance for LSQR now normalized by
+	the subproblem's RHS.
+
+2006-05-07  Michael P. Friedlander  <mpf@cs.ubc.ca>
+
+	* MEX interface now accepts dense matrices.
+
+2006-04-19  Michael P. Friedlander  <mpf@cs.ubc.ca>
+
+	* Migrated to Autoconf/AutoMake/Libtool.
+

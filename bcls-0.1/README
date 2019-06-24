@@ -1,0 +1,219 @@
+File: README
+$Revision: 290 $ $Date: 2007-03-04 22:01:54 -0800 (Sun, 04 Mar 2007) $
+
+OVERVIEW
+--------
+
+This directory contains the source code for BCLS, a package for
+solving bound-constrained least squares problems:
+
+    minimize     1/2 r'r  +  1/2 mu x'x  +  c'x
+      x,r                                               (*)
+    subject to   Ax + r = b,  l <= x <= u.
+
+The m-by-n matrix A can be any shape, though BCLS is most efficient
+when m >= n.  The regularization (damping) parameter mu may be zero
+(but not negative!).  The linear term c may also be zero.  The vectors
+l and u describe upper and lower bounds on the variables x.  Some (or
+all) components of l and u may be -infinity and +infinity,
+respectively.
+
+BCLS implements a projected descent method.  Each search direction is
+a combination of a Newton step and a steepest descent step.  These are
+computed by solving a (usual) least-squares problem using LSQR.  Some
+notable features of the implementation:
+
+- The matrix  A  is only used as an operator, i.e., the user needs to
+  provide the matrix-vector products  A*x  and  A'*y.
+
+- The normal equations are never formed.
+
+- The active-set method can take advantage of good solution estimates.
+
+The ability to warm-start a problem using an estimate of the solution
+is especially useful when a sequence of problems needs to be solved,
+and each is a small perturbation of the previous problem.
+
+The remainder of this README assumes that BCLS has been unpacked and
+that the current working directory is the top level of the BCLS
+distribution, which we refer to as "./" or $BCLS.
+
+MATRIX-VECTOR PRODUCTS
+----------------------
+
+All access to the matrix A is made through the user-supplied routine
+Aprod with the prototype:
+
+  int Aprod( int mode, int m, int n, int nix, int ix[],
+             double x[], double y[], void *ptrA );
+
+At each call to Aprod, BCLS will set the variable "mode" to describe
+if a product with A or with A' is required:
+
+    If      mode == 1,  compute  y = A *x,  with  x  untouched;
+    and if  mode == 2,  compute  x = A'*y,  with  y  untouched.
+
+The integers  m  and  n  describe the number of rows and columns in A,
+and also the lengths of the vectors  y  and  x, respectively.
+
+*This is important!*  Only *some* columns of A are needed for any given
+matrix-vector multiply.  The vector of indices ix (with length nix)
+describes which columns of A should contribute.  In other words, Aprod
+should return
+
+    if mode == 1,  y = A(:, ix) * x(ix),       where  len(ix) = nix
+
+(using Matlab notation).  In fact, many of the calls to Aprod have nix
+= 1, so that only a *single* column of A is required.
+
+On the other hand,
+
+    if mode == 2,  x(ix) = A(:, ix)' * y,   where  len(ix) = nix.
+
+However, BCLS will simply ignore elements of x that are not indexed by
+ix, so that the call to Aprod with mode == 2 is not as critical the
+mode == 1 call.
+
+See the routine "Aprod" in ./examples/bcsol.c for an example of how to
+code this routine.
+
+QUICK START
+-----------
+
+If all the prerequisites are installed on your system, then in theory
+(see PREREQUISITES below) you should only have to type
+
+   ./configure
+   make
+   make install
+
+Normally, machine-specific BLAS should be used when linking the BCLS
+libraries against your application.  The reference BLAS libraries are
+used to get things going out-of-the-box.
+
+If a Matlab MEX interface is needed, then additionally type
+
+   cd matlab
+   make
+
+(Note that this compilation uses the BLAS and CBLAS libraries supplied
+by Matlab's default installation.)
+
+PREREQUISITES
+-------------
+
+To compile BCLS, you need
+
+1. A C compiler.  The BCLS sources are written in ISO (C99) conforming
+   C.
+
+2. GNU make.  Probably other versions of make will work with the
+   provided Makefile's, but I haven't tried them.  If you don't have
+   GNU Make, do yourself a favor: get it!
+
+3. Optional: Reference BLAS (and its C interface, CBLAS) are provided
+   in this distribution.  But a machine-specific implementation will
+   be *much* more efficient.
+
+4. Optional: Matlab.  A Matlab MEX interface to BCLS is provided.
+
+TEST PROGRAM
+------------
+
+A commandline interface to BCLS is provided in the directory ./examples:
+
+    ./examples/bcsol
+
+Peruse the source code for bcsol.  It provides an example of how BCLS
+can be linked to a stand-alone application, and it exercises most of
+BCLS's options.
+
+The solver ./examles/bcsol reads a matrix A and a right-hand-side b that
+are stored in Harwell-Boeing format.  A file
+
+NOTE: By default, this executable is linked to the dynamic library
+./lib/libbcls.so.  You may have to tell your dynamic link loader where
+to find the file by setting an environment variable:
+
+     Bash under Linux:
+     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BCLS/lib
+
+     Bash under OSX (Mac):
+     export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$BCLS/lib
+
+An example of calling bcsol on a problem such as (*):
+
+     ./bcsol -O well1033.bnd -s "luxc" well1033.rra
+
+The commandline switches are
+
+     -O well1033.bnd   The file that contains data describing the
+                       upper and lower bounds (l, u),
+                       the linear term (c), and a solution estimate (x).
+
+     -s "lucx"         Describes the vectors that are present in the
+                       optional data file "well1033.bnd", and their
+                       storage order.
+
+     well1033.rra      A Harwell-Boeing data file that stores the
+                       matrix A and the right-hand-side b.
+
+If, for example, we wish to omit the linear term and the starting
+vector, then we could use the commandline switch
+
+     -s "lu"
+
+MATLAB INTERFACE
+----------------
+
+A Matlab MEX interface can be found under the directory
+
+     ./matlab
+
+To compile the interface, first make sure that the variable MEX has
+been defined in ./Makefiles.defs.  Then
+
+      cd matlab
+      make mex
+
+From the Matlab prompt, do
+
+      >> addpath $BCLS/matlab
+      >> help bcls
+
+to add bcls.m (the wrapper to the actual mex interface bclsmex.c) and
+get the bcls.m documentation.  Do
+
+      >> test
+
+to test the interface.
+
+MISSING FEATURES and BUGS
+-------------------------
+
+1. Preconditioning
+
+The main outstanding item is the ability to precondition the LS
+subproblems.  At the moment it isn't possible to precondition if
+bounds are present.  The goal is to provide the ability to
+precondition each subproblem separately as
+
+   minimize  || Abar U^{-1} y - b ||
+      y
+
+where Abar is a submatrix formed from the columns of A, and U is a
+preconditioner provided by the users.  (For example, the matrix U
+might be derived from an incomplete LU factorization of A.)
+
+2. Inexact Newton
+
+Subproblem optimimality tolerances are probably still too tight.  Need
+to implement a dynamic optimality tolerance strategy based on Inexact
+Newton.
+
+CONTACT
+-------
+
+Michael P. Friedlander
+Department of Computer Science, University of British Columbia
+mpf@cs.ubc.ca                        http://www.cs.ubc.ca/~mpf

@@ -1,0 +1,98 @@
+/*!
+\mainpage notitle
+
+\htmlonly
+<!-- start of center block -->
+<div style="position:relative; margin:0 245px 0 2px; text-align:justify;">
+\endhtmlonly
+
+\section Introduction
+
+%BCLS is a software package for solving bound-constrained least-squares
+problems of the form
+\f[
+  \begin{array}{ll}
+    \displaystyle\mathop{\hbox{minimize}}_x
+    & \frac12\|Ax-b\|_2^2 + \mu\frac12\|x\|_2^2 + c^T x
+ \\ \hbox{subject to} & \ell \le x \le u.
+  \end{array}
+\f]
+The m-by-n matrix \f$A\f$ can be any shape.  The regularization and
+linear terms are optional.  The vectors \f$\ell\f$ and \f$u\f$ define
+upper and lower bounds on the variables \f$x\f$.  Free and fixed
+variables are easily accomodated by setting corresponding components of
+\f$\ell\f$ and \f$u\f$ to be \f$-\infty\f$ and \f$+\infty\f$, or by
+setting them equal to each other.
+
+%BCLS implements a two-metric projected-descent method.  At each
+iteration, a search direction is computed that is a combination of a
+Newton and a scaled steepest-descent step.
+
+Some notable features of the implementation:
+- The matrix \f$A\f$ is used only as an operator.  The user needs only
+to provide a routine to compute the matrix-vector produts \f$Ax\f$ and
+\f$A^T y.\f$
+- The algorithm can take advantage of good starting points, and is
+capable of making very large changes to the "active-set" at each iteration.
+- The normal equations are never formed.
+- The user may provide perconditioners in order to accelerate the
+solution of the subproblems.
+
+%BCLS is written in ISO C and should compile on most systems (thanks
+for the Autoconf/Automake tools).  No additional software is required,
+though there should be a significant speedup if it is compiled against
+a tuned <a href="http://www.netlib.org/blas/">BLAS</a> library such as
+<a href="http://math-atlas.sourceforge.net/">ATLAS</a>.  It has been
+tested using <a href="http://gcc.gnu.org/">GCC</a> on GNU/Linux, Mac
+OS X, and Windows XP (under MinGW).
+
+\section License
+
+%BCLS is open-source software released under the <a
+href="http://www.gnu.org/licenses/lgpl.html">L-GPL</a> license.  Feel
+free to use it in any way you wish.  If you find it at all useful, I'd
+like to hear from you, please send <a
+href="mailto:mpf@cs.ubc.ca">email</a>.
+
+\htmlonly
+<!-- end of center block -->
+</div>
+
+<!-- start of right margin --> 
+<div style="position:absolute;
+     top:100px; right:20px; width:220px; margin:2px; font-size:80%;">
+
+<b>Download:</b>
+</br>Sources (Version 0.1, 12 Dec 2006)
+<ul>
+<li><a href="downloads/bcls-0.1.zip">bcls-0.1.zip</a></li>
+<li><a href="downloads/bcls-0.1.tgz">bcls-0.1.tgz</a></li>
+</ul>
+</br>Precompiled MEX interfaces (Version 0.1, 12 Dec 2006)
+<ul>
+<li><a href="downloads/bcls-MEX-0.1-WinXP.zip">bcls-MEX-0.1-WinXP.zip</a></li>
+<li><a href="downloads/bcls-MEX-0.1-MacOS.zip">bcls-MEX-0.1-MacOS.zip</a></li>
+<li><a href="downloads/bcls-MEX-0.1-Linux.zip">bcls-MEX-0.1-Linux.zip</a></li>
+</ul>
+
+<b>Getting started:</b>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="documentation.html">Documentation</a></li>
+</ul>
+<br>
+
+<b>Author:</b>
+
+<p>
+      <a href="http://www.cs.ubc.ca/~mpf">Michael P. Friedlander</a>
+</br> <a href="http://www.cs.ubc.ca">Department of Computer Science</a>
+</br> <a href="http://www.ubc.ca">University of British Columbia</a>
+</br> <a href="mailto:mpf@cs.ubc.ca">mpf@cs.ubc.ca</a>
+</p>
+
+<!-- end of right margin -->
+</div>
+\endhtmlonly
+
+*/

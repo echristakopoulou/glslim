@@ -1,0 +1,5 @@
+bcversion.lo: bcversion.c ../config.h ../include/bcversion.h
+
+../config.h:
+
+../include/bcversion.h:

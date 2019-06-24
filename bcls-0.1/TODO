@@ -1,0 +1,33 @@
+-  Matlab MEX
+   - Is RHS allocatation for usolve and aprod correct?
+   - Allow linear term, bounds, and x0 to be scalars.  Convert to vec's.
+
+-  Preconditioning
+   - UMFPACK?
+   - Pass current damp param to usolve so that can consider in
+     preconditioner.
+   - Implement above in Matlab usolve.
+
+-  PRINTN
+   - Do the print_level test inside of bcls_print.
+     Makes the #define more bearable.
+
+-  Iteration log
+   - Incorrect summary with projected linesearch.
+
+-  Exact linesearch
+   - Better log output
+   - Refine unbounded step detection.
+
+-  Algorithm
+   - How to set damp_min for overdetermined systems?
+   - Lower bound on OptFac: 1e-6
+   - Exit if
+     - active set hasn't changed (detect while computing new a-set)
+     - step is tiny.
+
+-  Automake/conf
+   - Make sure that doc stuff is distributed.
+
+-  C++ safeguard
+   - Add mangling safeguard to bclib.h.

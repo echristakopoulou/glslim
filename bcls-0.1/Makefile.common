@@ -1,0 +1,4 @@
+@SET_MAKE@
+
+# Flags to pass to aclocal when it's rebuilt by make.
+ACLOCAL_AMFLAGS = -I config
